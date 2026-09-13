@@ -1,10 +1,31 @@
-# Dynamic NP list for SAM3 video PCS — one concept per line (or comma-separated).
-# Edit freely; re-run the script. Short noun phrases work best.
+# 20+ exploratory NPs for KITTI street PCS (edit freely)
 person
 pedestrian
 bicycle
-umbrella
-storefront
 car
-backpack
+truck
+van
+bus
+motorcycle
+scooter
 traffic light
+stop sign
+umbrella
+backpack
+handbag
+suitcase
+dog
+stroller
+wheelchair
+bench
+pole
+traffic cone
+crosswalk
+storefront
+license plate
+fire hydrant
+shopping cart
+trash can
+street sign
+helmet
+baby carriage
