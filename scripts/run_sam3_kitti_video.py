@@ -4,7 +4,8 @@
 SAM3 video holds one text concept at a time; multi-NP runs each prompt then
 merges masklets (same pattern as SAM3's eval loop).
 
-Mac-safe (CPU by default). Examples:
+Checkpoints masks/JSON after each NP; writes the overlay mp4 once at the end
+(unless --video-every-np). Mac-safe (CPU fallback). Examples:
 
   # single concept
   python scripts/run_sam3_kitti_video.py --seq 0019 --prompts pedestrian \\
@@ -361,6 +362,11 @@ def main():
         default=None,
         help="Output stem override (default derived from prompts).",
     )
+    parser.add_argument(
+        "--video-every-np",
+        action="store_true",
+        help="Rewrite mp4 after each NP (slow on long clips). Default: write once at end.",
+    )
     args = parser.parse_args()
 
     os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
@@ -398,9 +404,13 @@ def main():
 
     device = install_cuda_compat_shim()
     print(f"device={device} seq={args.seq} prompts={prompts} conf={args.conf}")
+    # Rough wall-time hint: ~3s/frame on A100-class GPU, ~25s/frame on CPU.
+    sec_per_frame = 3.0 if str(device).startswith("cuda") else 25.0
+    eta_min = len(prompts) * args.num_frames * sec_per_frame / 60.0
     print(
         f"note: SAM3 runs ONE NP at a time; {len(prompts)} prompts × "
-        f"{args.num_frames} frames ≈ {len(prompts) * args.num_frames * 25 / 60:.0f} min on CPU"
+        f"{args.num_frames} frames ≈ {eta_min:.0f} min on {device}"
+        f" (video={'every NP' if args.video_every_np else 'once at end'})"
     )
 
     frame_dir = prepare_frame_dir(args.seq, args.start, args.num_frames, work)
@@ -464,15 +474,22 @@ def main():
             "per_prompt_object_counts": per_prompt_stats,
             "merged_object_counts": summarize_concepts(combined, obj_to_concept),
         }
+        # Checkpoint after each NP so a crash still leaves usable partial results.
         save_payload(masks_path, combined, obj_to_concept, meta)
         meta_json.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-        # refresh video after each NP so partial results are viewable
-        paths = resolve_frame_paths(frame_dir, args.seq, args.start, args.num_frames)
-        write_video(paths, combined, out_mp4, fps=args.fps, obj_to_concept=obj_to_concept)
+        if args.video_every_np:
+            paths = resolve_frame_paths(frame_dir, args.seq, args.start, args.num_frames)
+            write_video(
+                paths, combined, out_mp4, fps=args.fps, obj_to_concept=obj_to_concept
+            )
 
     print("\n=== concept hit summary (unique tracked objs) ===")
     for concept, n in per_prompt_stats.items():
         print(f"  {concept!r}: {n}")
+
+    paths = resolve_frame_paths(frame_dir, args.seq, args.start, args.num_frames)
+    print(f"\nwriting final video ({len(paths)} frames)...")
+    write_video(paths, combined, out_mp4, fps=args.fps, obj_to_concept=obj_to_concept)
 
     try:
         predictor.handle_request({"type": "close_session", "session_id": session_id})

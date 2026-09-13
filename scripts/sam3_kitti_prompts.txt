@@ -1,31 +1,6 @@
-# 20+ exploratory NPs for KITTI street PCS (edit freely)
+# 5 NPs for long KITTI video PCS+track
 person
-pedestrian
-bicycle
 car
-truck
-van
-bus
-motorcycle
-scooter
+bicycle
 traffic light
-stop sign
-umbrella
-backpack
-handbag
-suitcase
-dog
-stroller
-wheelchair
-bench
 pole
-traffic cone
-crosswalk
-storefront
-license plate
-fire hydrant
-shopping cart
-trash can
-street sign
-helmet
-baby carriage

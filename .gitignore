@@ -17,6 +17,9 @@ __pycache__/
 # Large / local-only data (download on GPU host)
 Research_Data/
 data/
+# Keep SAM3 train package (root data/ would otherwise ignore it)
+!sam3/sam3/train/data/
+!sam3/sam3/train/data/**
 datasets/
 
 # Heavy run artifacts
