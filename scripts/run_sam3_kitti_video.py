@@ -364,7 +364,14 @@ def main():
     args = parser.parse_args()
 
     os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
-    os.environ.setdefault("SAM3_DEVICE", "cpu")
+    # Prefer CUDA when present; only fall back to CPU if nothing else is set.
+    if "SAM3_DEVICE" not in os.environ:
+        try:
+            import torch
+
+            os.environ["SAM3_DEVICE"] = "cuda" if torch.cuda.is_available() else "cpu"
+        except Exception:
+            os.environ["SAM3_DEVICE"] = "cpu"
 
     raw = args.prompts
     if args.prompt:
