@@ -1,0 +1,44 @@
+{
+  "seq": "0019",
+  "start": 188,
+  "num_frames": 20,
+  "conf": 0.3,
+  "prompts": [
+    "person",
+    "pedestrian",
+    "bicycle",
+    "umbrella",
+    "storefront",
+    "car",
+    "backpack",
+    "traffic light"
+  ],
+  "completed_prompts": [
+    "person",
+    "pedestrian",
+    "bicycle",
+    "umbrella",
+    "storefront",
+    "car",
+    "backpack",
+    "traffic light"
+  ],
+  "per_prompt_object_counts": {
+    "person": 33,
+    "pedestrian": 19,
+    "bicycle": 5,
+    "umbrella": 0,
+    "storefront": 3,
+    "car": 2,
+    "backpack": 4,
+    "traffic light": 0
+  },
+  "merged_object_counts": {
+    "person": 33,
+    "pedestrian": 19,
+    "bicycle": 5,
+    "storefront": 3,
+    "car": 2,
+    "backpack": 4
+  }
+}

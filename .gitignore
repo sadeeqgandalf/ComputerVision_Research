@@ -1,0 +1,45 @@
+# Envs
+.venv/
+.venv_sam3/
+venv/
+__pycache__/
+*.py[cod]
+.Python
+*.egg-info/
+.eggs/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Large / local-only data (download on GPU host)
+Research_Data/
+data/
+datasets/
+
+# Heavy run artifacts
+outputs/**/*.pkl
+outputs/**/frames_*/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+
+# Keep small demo outputs optional — ignore large videos by default
+outputs/**/*.mp4
+!outputs/**/*_preview.jpg
+
+# Caches
+.cache/
+**/hf_cache/
+**/.huggingface/
+**/__pycache__/
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem

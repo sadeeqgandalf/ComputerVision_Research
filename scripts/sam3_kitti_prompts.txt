@@ -1,0 +1,10 @@
+# Dynamic NP list for SAM3 video PCS — one concept per line (or comma-separated).
+# Edit freely; re-run the script. Short noun phrases work best.
+person
+pedestrian
+bicycle
+umbrella
+storefront
+car
+backpack
+traffic light
