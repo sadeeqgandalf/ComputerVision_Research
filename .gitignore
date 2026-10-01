@@ -21,6 +21,8 @@ data/
 !sam3/sam3/train/data/
 !sam3/sam3/train/data/**
 datasets/
+# Vendored TrackEval needs its datasets package (imported by trackeval/__init__.py)
+!TrackEval/trackeval/datasets/
 
 # Heavy run artifacts
 outputs/**/*.pkl

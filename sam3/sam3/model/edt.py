@@ -67,8 +67,9 @@ def _edt_cv2(data: torch.Tensor) -> torch.Tensor:
 
     outputs = []
     for i in range(data.shape[0]):
-        # OpenCV expects uint8 with zeros as "seed" locations (distance 0)
-        mask = (~data[i].detach().cpu().bool()).numpy().astype(np.uint8)
+        # OpenCV measures distance to the nearest zero pixel; like the Triton
+        # kernel, False pixels are the zero (distance 0) locations.
+        mask = data[i].detach().cpu().bool().numpy().astype(np.uint8)
         dist = cv2.distanceTransform(mask, cv2.DIST_L2, 0)
         outputs.append(torch.from_numpy(dist))
     return torch.stack(outputs, dim=0).to(device=data.device, dtype=torch.float32)
