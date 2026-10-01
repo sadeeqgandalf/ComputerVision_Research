@@ -126,6 +126,7 @@ def overlay_masks(
     alpha: float = 0.45,
 ) -> np.ndarray:
     out = frame_rgb.astype(np.float32).copy()
+    labels: list[tuple[str, tuple[int, int]]] = []
     for obj_id, mask in sorted(masks_by_obj.items()):
         color = MASK_COLORS[int(obj_id) % len(MASK_COLORS)]
         m = mask.astype(bool)
@@ -147,17 +148,21 @@ def overlay_masks(
             concept = (obj_to_concept or {}).get(int(obj_id), "")
             short = (concept[:10] + "…") if len(concept) > 10 else concept
             label = f"{int(obj_id)}:{short}" if short else str(int(obj_id))
-            cv2.putText(
-                out,
-                label,
-                (cx, cy),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.45,
-                (255, 255, 255),
-                2,
-                cv2.LINE_AA,
-            )
-    return out.astype(np.uint8)
+            labels.append((label, (cx, cy)))
+    # Draw text on the uint8 image: OpenCV >= 5 rejects putText on float32.
+    out = out.astype(np.uint8)
+    for label, org in labels:
+        cv2.putText(
+            out,
+            label,
+            org,
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.45,
+            (255, 255, 255),
+            2,
+            cv2.LINE_AA,
+        )
+    return out
 
 
 def collect_propagation(predictor, session_id: str) -> dict:
