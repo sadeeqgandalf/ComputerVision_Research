@@ -150,11 +150,15 @@ What is not shown: there is no occlusion-specific experiment, measurement or out
 ## Limitations and next steps
 
 - No quantitative evaluation yet; no converter from SAM 3 masklets to KITTI-MOTS format.
-- `TrackEval/trackeval/datasets/` is missing from the repository (the root `.gitignore` rule `datasets/` excludes it), so the vendored TrackEval cannot import as committed. Restoring that folder from upstream, or narrowing the ignore rule, is needed before evaluation.
+- `TrackEval/trackeval/datasets/` was previously excluded by the root `.gitignore`; it is now tracked, so `import trackeval` works from a fresh clone. An exporter from the saved masks to TrackEval's MOTS format is still to be written before HOTA/IDF1 can be reported.
 - Prompts are applied on frame 0 only, so objects that enter later or are occluded at frame 0 can be missed.
 - Short clips only (20-40 frames in the documented runs); one phrase per pass makes runs slow, especially on CPU.
 - Cross-concept duplicates ("person" vs "pedestrian") are not merged.
 - Next: occlusion-focused clips with measured identity switches (IDF1, ID switches), appearance re-ID for long occlusions, and cross-concept de-duplication.
+
+## Tests
+
+`pip install pytest numpy scipy opencv-python && pytest tests/` runs 6 regression tests: the CPU/Apple-Silicon distance-transform fallback against `scipy.ndimage.distance_transform_edt` (max error ~5e-8), and the KITTI overlay helpers on OpenCV 5. They need no SAM 3 checkpoints.
 
 ## Related work
 
