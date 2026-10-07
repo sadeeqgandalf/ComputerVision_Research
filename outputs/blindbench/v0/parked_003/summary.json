@@ -1,0 +1,44 @@
+{
+  "scenario": "parked_van_pedestrian_occlusion_v1",
+  "pattern": "ScenarioRunner ParkingCrossingPedestrian (parked blocker + walking ped)",
+  "frames": 280,
+  "fully_occluded_frames": 61,
+  "motion_audit": {
+    "ped_max_step_m": 0.06750132691915008,
+    "occ_max_step_m": 0.0,
+    "ped_max_speed_mps": 1.3500265383830015,
+    "occ_max_speed_mps": 0.0,
+    "ped_mean_speed_mps": 1.0075082358299778,
+    "ped_teleport": false,
+    "occ_teleport": false,
+    "ped_too_fast": false,
+    "ped_not_moving": false,
+    "occ_not_parked": false
+  },
+  "quality_gates": {
+    "ped_visible_early": true,
+    "has_full_occlusion": true,
+    "ped_visible_late": true,
+    "peak_occ": 1.0,
+    "full_frames": 61,
+    "amodal_cover_rate": 1.0,
+    "motion_pass": true
+  },
+  "quality_pass": true,
+  "modal_explained": {
+    "modal_area_px": "visible ped pixels only",
+    "example_ref": 5252.0,
+    "example_pct_of_frame": 0.5698784722222222,
+    "amodal": "union of walker bone joints + actor bbox, padded"
+  },
+  "why_not_bus_through_intersection": "With ego at red and a pedestrian in the crosswalk, perpendicular traffic should also be stopped. A bus cutting the crosswalk is illegal / non-human. Parked curb occlusion is the Realistic BlindBench case.",
+  "map": "Carla/Maps/Town10HD_Opt",
+  "available_maps_note": "query client.get_available_maps(); ScenarioRunner scenarios bind to specific towns",
+  "out": "/workspace/outputs/blindbench_v0/parked_003",
+  "docs": [
+    "https://carla.readthedocs.io/en/latest/core_map/",
+    "https://carla.readthedocs.io/en/latest/core_actors/",
+    "https://scenario-runner.readthedocs.io/en/latest/list_of_scenarios/",
+    "https://scenario-runner.readthedocs.io/en/latest/creating_new_scenario/"
+  ]
+}

@@ -1,0 +1,24 @@
+# Deleted 2026-09-30 before clean SAM 3 / SAM 3.1 re-benchmark (Mac)
+4.0K	outputs/SAM3.1/tracking/metrics/kitti_mots_val_sam3_1_person_car.csv
+4.0K	outputs/SAM3.1/tracking/metrics/kitti_mots_val_sam3_1_person_car.json
+4.0K	outputs/SAM3.1/tracking/metrics/kitti_mots_val_sam3_1_person_car.md
+4.0K	outputs/SAM3.1/tracking/metrics/kitti_mots_val_sam3_1_person_car_c05.csv
+4.0K	outputs/SAM3.1/tracking/metrics/kitti_mots_val_sam3_1_person_car_c05.json
+4.0K	outputs/SAM3.1/tracking/metrics/kitti_mots_val_sam3_1_person_car_c05.md
+4.0K	outputs/SAM3.1/tracking/metrics/kitti_mots_val_sam3_1_person_car_c03.json
+4.0K	outputs/SAM3.1/tracking/metrics/kitti_mots_val_sam3_1_person_car_c03.md
+4.0K	outputs/SAM3.1/tracking/metrics/SAM3.1_KITTI_MOTS.csv
+  0B	outputs/SAM3.1/tracking/predictions/kitti_mots
+  0B	outputs/SAM3.1/tracking/predictions/mots_challenge
+ 54M	outputs/SAM3.1/tracking/raw/kitti_mots
+  0B	outputs/SAM3.1/tracking/raw/mots_challenge
+4.0K	outputs/SAM3/tracking/metrics/kitti_mots_val_sam3_person_car.csv
+4.0K	outputs/SAM3/tracking/metrics/kitti_mots_val_sam3_person_car.json
+4.0K	outputs/SAM3/tracking/metrics/kitti_mots_val_sam3_person_car.md
+4.0K	outputs/SAM3/tracking/metrics/mots_challenge_train_sam3_person.csv
+4.0K	outputs/SAM3/tracking/metrics/mots_challenge_train_sam3_person.json
+4.0K	outputs/SAM3/tracking/metrics/mots_challenge_train_sam3_person.md
+4.0K	outputs/SAM3/tracking/metrics/SAM3_KITTI_MOTS.csv
+8.0K	outputs/SAM3/tracking/results/kitti_mots
+ 13M	outputs/benchmarks/ground_truth/kitti_mots
+ 19M	outputs/benchmarks/ground_truth/mots_challenge

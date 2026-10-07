@@ -1,0 +1,48 @@
+{
+  "scenario": "red_light_pedestrian_occlusion_v2_physics",
+  "frames": 280,
+  "fully_occluded_frames": 7,
+  "motion_audit": {
+    "ped_max_step_m": 0.060001608056082005,
+    "occ_max_step_m": 0.20000535308902925,
+    "ped_max_speed_mps": 1.20003216112164,
+    "occ_max_speed_mps": 4.000107061780585,
+    "ped_mean_speed_mps": 0.5189172036703315,
+    "occ_mean_speed_driving_mps": 1.4225994790978966,
+    "ped_teleport": false,
+    "occ_teleport": false,
+    "ped_too_fast": false,
+    "occ_too_fast": false,
+    "ped_not_moving": false,
+    "occ_not_driving": false,
+    "occ_max_pitch_deg": 0.0,
+    "occ_max_roll_deg": 0.0,
+    "occ_max_z": 0.44999998807907104,
+    "occ_airborne": false,
+    "occ_sunk": false
+  },
+  "quality_gates": {
+    "ped_visible_before_drive": true,
+    "has_full_occlusion": true,
+    "ped_visible_late": true,
+    "peak_occ": 1.0,
+    "full_frames": 7,
+    "motion_pass": true
+  },
+  "quality_pass": true,
+  "modal_explained": {
+    "modal_area_px": "count of visible target pixels (NOT a weird huge score)",
+    "example_ref": 6709.0,
+    "example_pct_of_1280x720": 0.7279730902777778,
+    "occlusion_ratio": "1 - modal_now/modal_ref, range 0..1",
+    "amodal": "projected 3D bbox of full body even when hidden"
+  },
+  "map": "Carla/Maps/Town10HD_Opt",
+  "out": "/workspace/outputs/blindbench_v0/redlight_008",
+  "narrative": [
+    "Ego stopped at red light (brake held).",
+    "Pedestrian walks via WalkerControl (continuous velocity, no AI teleport).",
+    "Vehicle crosses via kinematic ground-plane steps (speed*dt) \u2014 upright, visible, no sink/flip.",
+    "Export only if motion audit + occlusion gates pass."
+  ]
+}

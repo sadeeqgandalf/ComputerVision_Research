@@ -1,0 +1,58 @@
+{
+  "scenario": "red_light_pedestrian_occlusion_v3_carla_agents",
+  "frames": 280,
+  "fully_occluded_frames": 18,
+  "motion_audit": {
+    "ped_max_step_m": 0.06250215367545109,
+    "occ_max_step_m": 0.2520267876196589,
+    "ped_max_speed_mps": 1.2500430735090218,
+    "occ_max_speed_mps": 5.040535752393178,
+    "ped_mean_speed_mps": 0.4401741893735248,
+    "occ_mean_speed_driving_mps": 2.8817787491258766,
+    "ped_teleport": false,
+    "occ_teleport": false,
+    "ped_too_fast": false,
+    "occ_too_fast": false,
+    "ped_not_moving": false,
+    "occ_not_driving": false,
+    "occ_max_pitch_deg": 2.9307589530944824,
+    "occ_max_roll_deg": 0.8267958760261536,
+    "occ_max_z": 0.0401264950633049,
+    "occ_airborne": false,
+    "occ_sunk": false
+  },
+  "quality_gates": {
+    "ped_visible_before_drive": true,
+    "has_full_occlusion": true,
+    "ped_visible_late": true,
+    "peak_occ": 1.0,
+    "full_frames": 18,
+    "motion_pass": true
+  },
+  "quality_pass": true,
+  "modal_explained": {
+    "modal_area_px": "count of visible target pixels (NOT a weird huge score)",
+    "example_ref": 2171.0,
+    "example_pct_of_1280x720": 0.2355685763888889,
+    "occlusion_ratio": "1 - modal_now/modal_ref, range 0..1",
+    "amodal": "projected 3D bbox of full body even when hidden"
+  },
+  "map": "Carla/Maps/Town10HD_Opt",
+  "out": "/workspace/outputs/blindbench_v0/redlight_012",
+  "stack": {
+    "engine": "CARLA UE4 server (PythonAPI client \u2014 no separate Unreal plugin required)",
+    "pedestrian": "carla.WalkerControl (ScenarioRunner PedestrianControl pattern)",
+    "occluder": "Map waypoint spawn + BasicAgent + enable_constant_velocity(local)",
+    "docs": [
+      "https://carla.readthedocs.io/en/latest/core_actors/",
+      "https://carla.readthedocs.io/en/latest/adv_agents/",
+      "https://scenario-runner.readthedocs.io/"
+    ]
+  },
+  "narrative": [
+    "Ego stopped at red light (brake held).",
+    "Pedestrian walks via WalkerControl toward a goal (animated walk).",
+    "Vehicle spawned on OpenDRIVE waypoint; BasicAgent steers; local constant velocity drives.",
+    "Export only if motion audit + occlusion gates pass."
+  ]
+}

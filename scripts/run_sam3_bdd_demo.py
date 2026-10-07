@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BDD_IMG_DIR = ROOT / "Research_Data/BDD100K/hf_dgural_bdd100k/data"
 BDD_VAL_DIR = ROOT / "Research_Data/BDD100K/images/100k/val_data"
 BDD_LABELS = ROOT / "Research_Data/BDD100K/labels/det_val_simplified.json"
-OUT_DIR = ROOT / "outputs/bdd_sam3_demo"
+OUT_DIR = ROOT / "outputs" / "SAM3" / "demos" / "bdd"
 BDD_DET_CATEGORIES = {
     "car",
     "traffic sign",

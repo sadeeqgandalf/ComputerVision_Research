@@ -125,14 +125,19 @@ class Sam3BasePredictor:
         offload_state_to_cpu=False,
     ):
         """Start a new inference session on a video directory or path."""
-        init_kwargs = dict(
-            resource_path=resource_path,
-            offload_video_to_cpu=offload_video_to_cpu,
-            offload_state_to_cpu=offload_state_to_cpu,
-        )
-        if hasattr(self, "async_loading_frames"):
+        # SAM 3 init_state accepts offload_state_to_cpu; SAM 3.1 multiplex does not.
+        # Only forward kwargs that the active model actually supports.
+        import inspect
+
+        init_kwargs = {"resource_path": resource_path}
+        supported = set(inspect.signature(self.model.init_state).parameters)
+        if "offload_video_to_cpu" in supported:
+            init_kwargs["offload_video_to_cpu"] = offload_video_to_cpu
+        if "offload_state_to_cpu" in supported:
+            init_kwargs["offload_state_to_cpu"] = offload_state_to_cpu
+        if "async_loading_frames" in supported and hasattr(self, "async_loading_frames"):
             init_kwargs["async_loading_frames"] = self.async_loading_frames
-        if hasattr(self, "video_loader_type"):
+        if "video_loader_type" in supported and hasattr(self, "video_loader_type"):
             init_kwargs["video_loader_type"] = self.video_loader_type
         inference_state = self.model.init_state(**init_kwargs)
 

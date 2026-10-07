@@ -1,6 +1,3 @@
-# 5 NPs for long KITTI video PCS+track
+# 2-class KITTI video PCS+track
 person
 car
-bicycle
-traffic light
-pole

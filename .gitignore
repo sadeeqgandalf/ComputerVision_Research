@@ -27,6 +27,7 @@ datasets/
 # Heavy run artifacts
 outputs/**/*.pkl
 outputs/**/frames_*/
+outputs/SAM3.1/tracking/raw/**/frames_*/
 *.pt
 *.pth
 *.ckpt
@@ -36,6 +37,9 @@ outputs/**/frames_*/
 # Keep small demo outputs optional — ignore large videos by default
 outputs/**/*.mp4
 !outputs/**/*_preview.jpg
+!outputs/SAM3/tracking/metrics/**
+!outputs/SAM3.1/tracking/metrics/**
+!outputs/SAM3/research/**
 
 # Caches
 .cache/
@@ -43,8 +47,16 @@ outputs/**/*.mp4
 **/.huggingface/
 **/__pycache__/
 
+# Local reference PDFs (copyrighted; do not commit)
+Computer vision research/refs/*.pdf
+
 # Secrets
 .env
 .env.*
 !.env.example
 *.pem
+
+# Local only: third-party clone, editor and OS files
+cosmos~/
+.cursor/
+.DS_Store

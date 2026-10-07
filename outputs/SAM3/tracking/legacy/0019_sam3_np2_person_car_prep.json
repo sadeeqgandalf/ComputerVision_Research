@@ -1,0 +1,19 @@
+{
+  "seq": "0019",
+  "start": 0,
+  "num_frames": 500,
+  "gt": {
+    "seq": "0019",
+    "start": 0,
+    "num_frames": 500,
+    "gt_txt": "/Users/sadeeqadeyemi/Documents/Computervision_Research/outputs/benchmarks/ground_truth/kitti_mots/instances_txt/0019.txt",
+    "n_lines": 4243,
+    "frames_with_gt": 500,
+    "class_counts": {
+      "1": 338,
+      "2": 3405,
+      "10": 500
+    }
+  },
+  "note": "Legacy SAM3 single-seq prep. GT moved to outputs/benchmarks/ground_truth/kitti_mots/."
+}

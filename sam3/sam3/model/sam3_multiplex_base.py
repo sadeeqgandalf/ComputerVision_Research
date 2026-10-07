@@ -1749,6 +1749,40 @@ class Sam3MultiplexBase(Sam3VideoBase):
             if len(inference_state["obj_ids"]) == 0:
                 continue  # skip propagation on empty inference states
 
+            # Crowded MOTS / long seqs can drop conditioning seeds while obj_ids
+            # remain. Meta's tracker then raises "No points are provided". Emit
+            # inert masks so metadata stays aligned and detection can re-seed.
+            cond_outs = inference_state.get("output_dict", {}).get(
+                "cond_frame_outputs", {}
+            )
+            if len(cond_outs) == 0:
+                n = len(inference_state["obj_ids"])
+                H_mask = W_mask = self.tracker.low_res_mask_size
+                logger.warning(
+                    "frame %s: empty cond_frame_outputs with %d obj_ids; "
+                    "emitting inert masks to keep multiplex state consistent",
+                    frame_idx,
+                    n,
+                )
+                obj_ids_local.extend(list(inference_state["obj_ids"]))
+                low_res_masks_list.append(
+                    torch.full(
+                        (n, H_mask, W_mask),
+                        -10.0,
+                        device=self.device,
+                        dtype=torch.float32,
+                    )
+                )
+                obj_scores_list.append(
+                    torch.full(
+                        (n,),
+                        -10.0,
+                        device=self.device,
+                        dtype=torch.float32,
+                    )
+                )
+                continue
+
             # propagate one frame
             num_frames_propagated = 0
             with torch.profiler.record_function("sam2_predictor.propagate_in_video"):

@@ -1,0 +1,13 @@
+{
+  "frames": 120,
+  "fully_occluded_frames": 12,
+  "partial_occlusion_frames": 106,
+  "max_occlusion_ratio": 1.0,
+  "min_occlusion_ratio": 0.28379325007200895,
+  "target_actor_id": 38,
+  "target_instance_id": 16654,
+  "occluder_id": 39,
+  "map": "Carla/Maps/Town10HD_Opt",
+  "out": "/workspace/outputs/blindbench_v0/run002",
+  "elapsed_sec": 11.690751552581787
+}

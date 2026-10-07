@@ -1124,9 +1124,12 @@ class SimpleRoPEAttention(nn.Module):
         if self.freqs_cis.shape[0] != q.shape[-2]:
             # pyrefly: ignore [bad-argument-type]
             self.freqs_cis = self.compute_cis(end_x=w, end_y=h, device=q.device)
-            if self.use_rope_real:
-                self.freqs_cis_real = self.freqs_cis.real
-                self.freqs_cis_imag = self.freqs_cis.imag
+        # Keep real/imag views on the same device as freqs_cis (and q).
+        # Without this, use_rope_real crashes after model.to("cuda") because
+        # freqs_cis_real/imag were captured on CPU at init.
+        if self.use_rope_real:
+            self.freqs_cis_real = self.freqs_cis.real
+            self.freqs_cis_imag = self.freqs_cis.imag
         if q.shape[-2] != k.shape[-2]:
             assert self.rope_k_repeat
 

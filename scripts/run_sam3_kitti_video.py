@@ -36,7 +36,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 KITTI_IMG = ROOT / "Research_Data/data_tracking_image_2/training/image_02"
-OUT_ROOT = ROOT / "outputs/kitti_sam3_video"
+OUT_ROOT = ROOT / "outputs" / "SAM3.1" / "tracking" / "raw" / "kitti_mots" / "dev"
 
 DEFAULT_PROMPTS = [
     "person",
@@ -165,11 +165,14 @@ def overlay_masks(
     return out
 
 
-def collect_propagation(predictor, session_id: str) -> dict:
+def collect_propagation(
+    predictor, session_id: str, output_prob_thresh: float | None = None
+) -> dict:
     mask_dict: dict = {}
-    for response in predictor.handle_stream_request(
-        {"type": "propagate_in_video", "session_id": session_id}
-    ):
+    req: dict = {"type": "propagate_in_video", "session_id": session_id}
+    if output_prob_thresh is not None:
+        req["output_prob_thresh"] = float(output_prob_thresh)
+    for response in predictor.handle_stream_request(req):
         frame_idx = response.get("frame_index")
         if frame_idx is None:
             continue
@@ -266,14 +269,24 @@ def write_video(
     out_mp4: Path,
     fps: int = 10,
     obj_to_concept: dict[int, str] | None = None,
+    display_width: int = 1920,
 ) -> None:
+    """Write H.264 overlay mp4. Upscales to display_width (even) for screen viewing."""
     if not frame_paths:
         raise RuntimeError("no frames to write")
     first = cv2.imread(str(frame_paths[0]))
     if first is None:
         raise RuntimeError(f"failed to read {frame_paths[0]}")
-    h, w = first.shape[:2]
+    h0, w0 = first.shape[:2]
+    target_w = max(2, int(display_width) // 2 * 2)
+    if target_w < w0:
+        target_w = w0 if w0 % 2 == 0 else w0 - 1
+    scale = target_w / float(w0)
+    target_h = int(round(h0 * scale))
+    if target_h % 2:
+        target_h += 1
     out_mp4.parent.mkdir(parents=True, exist_ok=True)
+    print(f"video encode {w0}x{h0} -> {target_w}x{target_h} @ {fps} fps")
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_dir = Path(tmp)
@@ -283,7 +296,26 @@ def write_video(
                 raise RuntimeError(f"failed to read {p}")
             rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
             overlay = overlay_masks(rgb, mask_dict.get(i, {}), obj_to_concept)
-            cv2.imwrite(str(tmp_dir / f"{i:05d}.jpg"), cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+            if (overlay.shape[1], overlay.shape[0]) != (target_w, target_h):
+                overlay = cv2.resize(
+                    overlay, (target_w, target_h), interpolation=cv2.INTER_LINEAR
+                )
+            cv2.imwrite(
+                str(tmp_dir / f"{i:05d}.jpg"),
+                cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR),
+                [int(cv2.IMWRITE_JPEG_QUALITY), 95],
+            )
+
+        def _write_cv2() -> None:
+            writer = cv2.VideoWriter(
+                str(out_mp4),
+                cv2.VideoWriter_fourcc(*"mp4v"),
+                fps,
+                (target_w, target_h),
+            )
+            for i in range(len(frame_paths)):
+                writer.write(cv2.imread(str(tmp_dir / f"{i:05d}.jpg")))
+            writer.release()
 
         ffmpeg = shutil.which("ffmpeg")
         if ffmpeg:
@@ -294,31 +326,42 @@ def write_video(
                 str(fps),
                 "-i",
                 str(tmp_dir / "%05d.jpg"),
+                "-vf",
+                f"scale={target_w}:{target_h}",
                 "-c:v",
                 "libx264",
+                "-crf",
+                "18",
+                "-preset",
+                "medium",
                 "-pix_fmt",
                 "yuv420p",
                 "-movflags",
                 "+faststart",
                 str(out_mp4),
             ]
-            subprocess.run(cmd, check=True, capture_output=True)
+            try:
+                subprocess.run(cmd, check=True, capture_output=True)
+            except subprocess.CalledProcessError as exc:
+                err = (exc.stderr or b"").decode("utf-8", errors="replace")[-400:]
+                print(f"ffmpeg failed ({exc.returncode}); falling back to OpenCV writer")
+                if err.strip():
+                    print(err.strip())
+                if out_mp4.exists() and out_mp4.stat().st_size == 0:
+                    out_mp4.unlink()
+                _write_cv2()
         else:
-            writer = cv2.VideoWriter(
-                str(out_mp4),
-                cv2.VideoWriter_fourcc(*"mp4v"),
-                fps,
-                (w, h),
-            )
-            for i in range(len(frame_paths)):
-                writer.write(cv2.imread(str(tmp_dir / f"{i:05d}.jpg")))
-            writer.release()
+            _write_cv2()
 
     preview = out_mp4.with_name(out_mp4.stem + "_preview.jpg")
     mid_i = len(frame_paths) // 2
     bgr = cv2.imread(str(frame_paths[mid_i]))
     rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
     overlay = overlay_masks(rgb, mask_dict.get(mid_i, {}), obj_to_concept)
+    if (overlay.shape[1], overlay.shape[0]) != (target_w, target_h):
+        overlay = cv2.resize(
+            overlay, (target_w, target_h), interpolation=cv2.INTER_LINEAR
+        )
     cv2.imwrite(str(preview), cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
     print(f"saved {out_mp4}")
     print(f"saved {preview}")
@@ -355,7 +398,19 @@ def main():
     parser.add_argument("--start", type=int, default=188, help="start frame in KITTI seq")
     parser.add_argument("--num-frames", type=int, default=20)
     parser.add_argument("--fps", type=int, default=10)
+    parser.add_argument(
+        "--video-width",
+        type=int,
+        default=1920,
+        help="Overlay mp4 width (height keeps KITTI aspect). Default 1920 for screen viewing.",
+    )
     parser.add_argument("--conf", type=float, default=0.3)
+    parser.add_argument(
+        "--max-objects",
+        type=int,
+        default=128,
+        help="Maximum SAM 3.1 tracks retained in a session.",
+    )
     parser.add_argument(
         "--from-masks",
         type=Path,
@@ -368,9 +423,20 @@ def main():
         help="Output stem override (default derived from prompts).",
     )
     parser.add_argument(
+        "--out-dir",
+        type=Path,
+        default=None,
+        help="Output directory (default: outputs/SAM3.1/tracking/raw/kitti_mots/dev).",
+    )
+    parser.add_argument(
         "--video-every-np",
         action="store_true",
         help="Rewrite mp4 after each NP (slow on long clips). Default: write once at end.",
+    )
+    parser.add_argument(
+        "--skip-video",
+        action="store_true",
+        help="Skip overlay mp4 (still saves masks.pkl — enough for HOTA).",
     )
     args = parser.parse_args()
 
@@ -391,24 +457,40 @@ def main():
     if not prompts:
         prompts = list(DEFAULT_PROMPTS)
 
+    out_root = args.out_dir if args.out_dir is not None else OUT_ROOT
     stem = args.name or f"{args.seq}_{slugify_prompts(prompts)}"
-    out_mp4 = OUT_ROOT / f"{stem}_track.mp4"
-    masks_path = OUT_ROOT / f"{stem}_masks.pkl"
-    meta_json = OUT_ROOT / f"{stem}_concepts.json"
-    work = OUT_ROOT / f"frames_{args.seq}_{args.start}_{args.num_frames}"
+    out_mp4 = out_root / f"{stem}_track.mp4"
+    masks_path = out_root / f"{stem}_masks.pkl"
+    meta_json = out_root / f"{stem}_concepts.json"
+    work = out_root / f"frames_{args.seq}_{args.start}_{args.num_frames}"
 
     if args.from_masks is not None:
         mask_dict, obj_to_concept, _meta = load_payload(args.from_masks)
         paths = resolve_frame_paths(work, args.seq, args.start, args.num_frames)
         print(f"write-only: {len(mask_dict)} mask frames, {len(paths)} images")
-        write_video(paths, mask_dict, out_mp4, fps=args.fps, obj_to_concept=obj_to_concept)
+        write_video(
+            paths,
+            mask_dict,
+            out_mp4,
+            fps=args.fps,
+            obj_to_concept=obj_to_concept,
+            display_width=args.video_width,
+        )
         print("done")
         return
 
     from sam3.model.device_utils import install_cuda_compat_shim
 
     device = install_cuda_compat_shim()
-    print(f"device={device} seq={args.seq} prompts={prompts} conf={args.conf}")
+    use_fa3 = bool(
+        str(device).startswith("cuda")
+        and torch.cuda.is_available()
+        and torch.cuda.get_device_capability()[0] >= 9
+    )
+    print(
+        f"device={device} fa3={use_fa3} seq={args.seq} "
+        f"prompts={prompts} conf={args.conf}"
+    )
     # Rough wall-time hint: ~3s/frame on A100-class GPU, ~25s/frame on CPU.
     sec_per_frame = 3.0 if str(device).startswith("cuda") else 25.0
     eta_min = len(prompts) * args.num_frames * sec_per_frame / 60.0
@@ -422,12 +504,14 @@ def main():
 
     from sam3.model_builder import build_sam3_predictor
 
-    print("Loading SAM3 video predictor...")
+    print("Loading SAM 3.1 video predictor...")
     predictor = build_sam3_predictor(
-        version="sam3",
+        version="sam3.1",
         compile=False,
         async_loading_frames=False,
         warm_up=False,
+        max_num_objects=args.max_objects,
+        use_fa3=use_fa3,
     )
     if hasattr(predictor.model, "fill_hole_area"):
         predictor.model.fill_hole_area = 0
@@ -440,8 +524,8 @@ def main():
         {
             "type": "start_session",
             "resource_path": str(frame_dir),
+            # SAM 3.1 multiplex ignores state offload; video offload still helps VRAM.
             "offload_video_to_cpu": True,
-            "offload_state_to_cpu": True,
         }
     )
     session_id = resp["session_id"]
@@ -463,13 +547,18 @@ def main():
             }
         )
         print("propagate_in_video...")
-        prompt_masks = collect_propagation(predictor, session_id)
+        prompt_masks = collect_propagation(
+            predictor, session_id, output_prob_thresh=args.conf
+        )
         n_objs = len({oid for masks in prompt_masks.values() for oid in masks})
         per_prompt_stats[concept] = n_objs
         print(f"  -> {n_objs} unique objects for {concept!r}")
         merge_prompt_masks(combined, prompt_masks, concept, obj_to_concept)
 
         meta = {
+            "model_version": "sam3.1",
+            "max_objects": args.max_objects,
+            "use_fa3": use_fa3,
             "seq": args.seq,
             "start": args.start,
             "num_frames": args.num_frames,
@@ -485,7 +574,12 @@ def main():
         if args.video_every_np:
             paths = resolve_frame_paths(frame_dir, args.seq, args.start, args.num_frames)
             write_video(
-                paths, combined, out_mp4, fps=args.fps, obj_to_concept=obj_to_concept
+                paths,
+                combined,
+                out_mp4,
+                fps=args.fps,
+                obj_to_concept=obj_to_concept,
+                display_width=args.video_width,
             )
 
     print("\n=== concept hit summary (unique tracked objs) ===")
@@ -493,8 +587,18 @@ def main():
         print(f"  {concept!r}: {n}")
 
     paths = resolve_frame_paths(frame_dir, args.seq, args.start, args.num_frames)
-    print(f"\nwriting final video ({len(paths)} frames)...")
-    write_video(paths, combined, out_mp4, fps=args.fps, obj_to_concept=obj_to_concept)
+    if args.skip_video:
+        print("skip-video: masks/json already checkpointed; not writing mp4")
+    else:
+        print(f"\nwriting final video ({len(paths)} frames)...")
+        write_video(
+            paths,
+            combined,
+            out_mp4,
+            fps=args.fps,
+            obj_to_concept=obj_to_concept,
+            display_width=args.video_width,
+        )
 
     try:
         predictor.handle_request({"type": "close_session", "session_id": session_id})

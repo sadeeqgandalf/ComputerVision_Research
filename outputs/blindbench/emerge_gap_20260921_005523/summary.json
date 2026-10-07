@@ -1,0 +1,60 @@
+{
+  "scenario": "pedestrian_emerge_between_parked_cars",
+  "narrative": "Ego stopped at red. Two vehicles are parked side-by-side along the right curb, forming a wide silhouette. A pedestrian crosses behind them from curb to roadway \u2014 visible, then occluded by the parked wall, then reappearing in the road.",
+  "frames": 280,
+  "motion_audit": {
+    "ped_max_step_m": 0.06750699534913278,
+    "occ_max_step_m": 0.0,
+    "ped_max_speed_mps": 1.3501399069826554,
+    "occ_max_speed_mps": 0.0,
+    "ped_mean_speed_mps": 0.6675623219307562,
+    "ped_teleport": false,
+    "occ_teleport": false,
+    "ped_not_moving": false
+  },
+  "quality_gates": {
+    "early_sidewalk_visibility": true,
+    "late_road_visibility": true,
+    "meaningful_occlusion": false,
+    "sustained_occlusion": false,
+    "full_occlusion_frames": 0,
+    "peak_occlusion_ratio": 0.10865139949109415,
+    "gap_phase_seen": true,
+    "road_phase_seen": true,
+    "early_modal_px": 15720,
+    "late_modal_px": 15675,
+    "amodal_cover_rate": 0.0,
+    "pedestrian_moved": true,
+    "pedestrian_no_teleport": true,
+    "occluder_stationary": true,
+    "pedestrian_mean_speed_mps": 0.6675623219307562,
+    "pass": false
+  },
+  "quality_pass": false,
+  "meta": {
+    "experiment": "pedestrian_emerge_between_parked_cars",
+    "occlusion_mechanism": "side_by_side_parked_wall",
+    "family": "dynamic_vehicle_occlusion",
+    "occluder_near_type": "vehicle.toyota.prius",
+    "occluder_far_type": "vehicle.audi.a2",
+    "car_depth_m": 11.0,
+    "car_left_lateral_m": -4.8,
+    "car_right_lateral_m": -2.1999999999999997,
+    "pair_spacing_m": 2.6,
+    "pedestrian_depth_m": 14.5,
+    "pedestrian_depth_offset_m": 3.5,
+    "pedestrian_speed_mps": 1.35,
+    "pedestrian_start_lateral_m": -7.5,
+    "pedestrian_end_lateral_m": 2.5,
+    "design_principle": "camera -> parked-car wall -> pedestrian",
+    "research_question": "How does observability change as a VRU crosses behind side-by-side parked vehicles from curb into roadway?",
+    "litmus": "depth-wise bumper gap rejected \u2014 opens toward camera; side-by-side wall creates real LOS occlusion"
+  },
+  "map": "Carla/Maps/Town05",
+  "out": "/home/ubuntu/carla-runtime/blindbench/emerge_gap_20260921_005523",
+  "modal_explained": {
+    "modal_area_px": "visible ped pixels",
+    "amodal": "bones + bbox padded",
+    "occlusion_ratio": "1 - modal_now/modal_ref in [0,1]"
+  }
+}

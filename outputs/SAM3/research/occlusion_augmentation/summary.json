@@ -1,0 +1,58 @@
+[
+  {
+    "frame_idx": 3407,
+    "source_image": "ba893ca0-7ad6a523.jpg",
+    "ratio_achieved": 0.5008156606851549,
+    "iou_clean_vs_full": 1.0,
+    "iou_hard_vs_full": 0.9259259259259259,
+    "iou_hard_vs_visible": 0.4618291761148904
+  },
+  {
+    "frame_idx": 4223,
+    "source_image": "bc9e1979-f1fb1692.jpg",
+    "ratio_achieved": 0.500302480338778,
+    "iou_clean_vs_full": 1.0,
+    "iou_hard_vs_full": 0.8672707889125799,
+    "iou_hard_vs_visible": 0.42643923240938164
+  },
+  {
+    "frame_idx": 7859,
+    "source_image": "c561cb9a-aafc0bad.jpg",
+    "ratio_achieved": 0.5,
+    "iou_clean_vs_full": 1.0,
+    "iou_hard_vs_full": 0.8205521472392638,
+    "iou_hard_vs_visible": 0.39723926380368096
+  },
+  {
+    "frame_idx": 3326,
+    "source_image": "ba47af6d-548205ea.jpg",
+    "ratio_achieved": 0.5011283594337688,
+    "iou_clean_vs_full": 1.0,
+    "iou_hard_vs_full": 0.49303810364735445,
+    "iou_hard_vs_visible": 0.9816091954022989
+  },
+  {
+    "frame_idx": 2311,
+    "source_image": "b775af1c-b71a7f85.jpg",
+    "ratio_achieved": 0.5082508250825083,
+    "iou_clean_vs_full": 1.0,
+    "iou_hard_vs_full": 0.9117352056168505,
+    "iou_hard_vs_visible": 0.4483450351053159
+  },
+  {
+    "frame_idx": 6306,
+    "source_image": "c18c2720-3900ffa7.jpg",
+    "ratio_achieved": 0.5086614173228347,
+    "iou_clean_vs_full": 1.0,
+    "iou_hard_vs_full": 0.9476976976976977,
+    "iou_hard_vs_visible": 0.46307884856070086
+  },
+  {
+    "frame_idx": 2408,
+    "source_image": "b7b132fc-72617f81.jpg",
+    "ratio_achieved": 0.5050505050505051,
+    "iou_clean_vs_full": 1.0,
+    "iou_hard_vs_full": 0.8791469194312796,
+    "iou_hard_vs_visible": 0.8673469387755102
+  }
+]
